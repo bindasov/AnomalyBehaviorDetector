@@ -11,26 +11,31 @@ class MouseListener:
     def __init__(self, user_id, session_id):
         self.session_id = session_id
         self.user_id = user_id
-        self.csv_logger = CSVHelper()
+        self.motion_list = []
+        self.scroll_list = []
         self.logger = get_logger('MouseListener')
 
     def start_listening(self):
         mouse_listener = mouse.Listener(on_move=self.on_move, on_scroll=self.on_scroll)
         mouse_listener.start()
-        return mouse_listener
+        self.logger.debug('Mouse Listener has started')
 
     def on_move(self, x, y):
         time_moved = int(time.time())
         self.logger.debug(f'Pointer moved to {x}, {y}. Current time: {time_moved}')
-        self.csv_logger.write_to_csv(actions_list=[[self.user_id, self.session_id, time_moved, x, y]],
-                                     csv_name=config.MOTION_CSV, columns=config.MOTION_HEADER)
+        self.motion_list.append([self.user_id, self.session_id, time_moved, x, y])
 
     def on_scroll(self, x, y, dx, dy):
         time_scrolled = int(time.time())
         rotation = -1 if dy < 0 else 1
         self.logger.debug(f'Scrolled at {x} {y} {"down" if dy < 0 else "up"}. Current time: {time_scrolled}')
-        self.csv_logger.write_to_csv(actions_list=[[self.user_id, self.session_id, time_scrolled, x, y, rotation]],
-                                     csv_name=config.SCROLL_CSV, columns=config.SCROLL_HEADER)
+        self.scroll_list.append([self.user_id, self.session_id, time_scrolled, x, y, rotation])
+
+    def get_motion_list(self):
+        return self.motion_list
+
+    def get_scroll_list(self):
+        return self.scroll_list
 
 
 class KeyboardListener:
@@ -54,14 +59,14 @@ class KeyboardListener:
     def __init__(self, user_id, session_id):
         self.user_id = user_id
         self.session_id = session_id
-        self.csv_logger = CSVHelper()
         self.logger = get_logger('KeyboardListener')
         self.keys_pressed = {}
+        self.keystroke_list = []
 
     def start_listening(self):
         keyboard_listener = keyboard.Listener(on_press=self.on_press, on_release=self.on_release)
         keyboard_listener.start()
-        return keyboard_listener
+        self.logger.debug('Keyboard Listener has started')
 
     def on_press(self, key):
         time_pressed = int(time.time())
@@ -81,9 +86,11 @@ class KeyboardListener:
             keycode = key.value.vk
         finally:
             self.logger.debug(f'{keycode} released')
-            self.csv_logger.write_to_csv(actions_list=[[self.user_id, self.session_id, self.keys_pressed.pop(keycode),
-                                                       time_released, keycode]],
-                                         csv_name=config.KEYSTROKE_CSV, columns=config.KEYSTROKE_HEADER)
+            self.keystroke_list.append([self.user_id, self.session_id, self.keys_pressed.pop(keycode),
+                                        time_released, keycode])
+
+    def get_keystroke_list(self):
+        return self.keystroke_list
 
 
 class Listener:
@@ -91,14 +98,23 @@ class Listener:
     def __init__(self, user_id, session_id):
         self.session_id = session_id
         self.user_id = user_id
+        self.m_listener = None
+        self.k_listener = None
 
     def start_listening(self):
-        m_listener = MouseListener(self.user_id, self.session_id).start_listening()
-        k_listener = KeyboardListener(self.user_id, self.session_id).start_listening()
-        m_listener.join()
-        k_listener.join()
+        self.m_listener = MouseListener(self.user_id, self.session_id)
+        self.k_listener = KeyboardListener(self.user_id, self.session_id)
+        self.m_listener.start_listening()
+        self.k_listener.start_listening()
+
+    def get_action_list(self, action_type):
+        headers = config.CSV_HEADERS
+        actions_dict = {'motion.csv': {'list': self.m_listener.get_motion_list(), 'header': headers['MOTION_HEADER']},
+                        'scroll.csv': {'list': self.m_listener.get_scroll_list(), 'header': headers['SCROLL_HEADER']},
+                        'keystroke.csv': {'list': self.k_listener.get_keystroke_list(),
+                                          'header': headers['KEYSTROKE_HEADER']}}
+        return actions_dict[action_type]
 
 
 if __name__ == '__main__':
     kblsn = KeyboardListener(1, 2)
-

@@ -1,13 +1,13 @@
 {
   "LOGLEVEL": 10,
   "LOGFILE": "logs/logfile.log",
-  "MOTION_CSV": "logs/motion.csv",
-  "SCROLL_CSV": "logs/scroll.csv",
-  "KEYSTROKE_CSV": "logs/keystroke.csv",
-  "DEFAULT_CSV": "logs/default.csv",
-  "MOTION_HEADER": ["user", "session", "time", "x", "y"],
-  "SCROLL_HEADER": ["user", "session", "time", "x", "y", "rotation"],
-  "KEYSTROKE_HEADER": ["user", "session", "timepress", "timerelease", "keycode"],
-  "DEFAULT_HEADER": ["user", "session_id", "x", "y", "time"],
-  "MAX_LIST_SIZE": 1000
+  "CSV_DATASETS": {"MOTION_CSV": "logs/motion.csv",
+                  "SCROLL_CSV": "logs/scroll.csv",
+                  "KEYSTROKE_CSV": "logs/keystroke.csv"
+  },
+  "CSV_HEADERS": {"MOTION_HEADER": ["user", "session", "time", "x", "y"],
+                  "SCROLL_HEADER": ["user", "session", "time", "x", "y", "rotation"],
+                  "KEYSTROKE_HEADER": ["user", "session", "timepress", "timerelease", "keycode"]
+  },
+  "SLEEP_TIME": 5
 }

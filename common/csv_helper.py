@@ -1,6 +1,5 @@
 import pandas as pd
 import os
-from common.conf import config
 from common.logger import get_logger
 
 
@@ -13,8 +12,11 @@ class CSVHelper:
     def __file_exists(self, filename):
         return os.path.isfile(filename)
 
-    def write_to_csv(self, actions_list, csv_name=config.DEFAULT_CSV, columns=config.DEFAULT_HEADER):
-        row = pd.DataFrame(actions_list, columns=columns)
+    def list_to_pd_dataframe(self, data_list, columns=None):
+        return pd.DataFrame(data_list, columns=columns)
+
+    def write_to_csv(self, actions_list, csv_name, columns):
+        row = self.list_to_pd_dataframe(actions_list, columns=columns)
         if not self.__file_exists(csv_name):
             self.logger.debug(f'Writing to a new file {csv_name}')
             row.to_csv(csv_name, index=False)
@@ -24,10 +26,10 @@ class CSVHelper:
             row.to_csv(csv_name, mode='a', header=False, index=False)
             self.logger.debug(f'Successfully written to {csv_name}')
 
-    def read_from_csv(self, csv_name=config.DEFAULT_CSV, column_name=None, usecols=config.DEFAULT_HEADER):
+    def read_from_csv(self, csv_name, column_name=None, columns=None):
         if self.__file_exists(csv_name):
             self.logger.debug(f'Reading from {csv_name}')
-            df = pd.read_csv(csv_name, usecols=usecols)
+            df = pd.read_csv(csv_name, usecols=columns)
             self.logger.debug(f'Successfully read from {csv_name}')
             if column_name:
                 return df[column_name]

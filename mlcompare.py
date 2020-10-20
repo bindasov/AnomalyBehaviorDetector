@@ -20,7 +20,7 @@ def prepare_report(classifier_name, y_test, classifier_output):
     recall_macro_avg = 100 * np.around(report_dict['macro avg']['recall'], 3)
     f1_macro_avg = 100 * np.around(report_dict['macro avg']['f1-score'], 3)
     accuracy = 100 * np.around(report_dict['accuracy'], 3)
-    
+
     return [classifier_name, len(y_test), accuracy, precision_macro_avg, recall_macro_avg, f1_macro_avg, work_time]
 
 
@@ -29,16 +29,15 @@ def try_perceptron(x_train, x_test, y_train):
     start = time.time()
     ppn.fit(x_train, y_train)
     end = time.time()
-    return ppn.predict(x_test), end-start
+    return ppn.predict(x_test), end - start
 
 
 def try_svm(x_train, x_test, y_train):
-    svm = SVC (kernel='rbf', C=1.0, random_state=0)
+    svm = SVC(kernel='rbf', C=1.0, random_state=0)
     start = time.time()
     svm.fit(x_train, y_train)
     end = time.time()
-    return svm.predict(x_test), end-start
-
+    return svm.predict(x_test), end - start
 
 
 def try_decision_tree(x_train, x_test, y_train):
@@ -46,7 +45,7 @@ def try_decision_tree(x_train, x_test, y_train):
     start = time.time()
     tree.fit(x_train, y_train)
     end = time.time()
-    return tree.predict(x_test), end-start
+    return tree.predict(x_test), end - start
 
 
 def try_random_forest(x_train, x_test, y_train):
@@ -57,7 +56,7 @@ def try_random_forest(x_train, x_test, y_train):
     start = time.time()
     forest.fit(x_train, y_train)
     end = time.time()
-    return forest.predict(x_test), end-start
+    return forest.predict(x_test), end - start
 
 
 def try_knn(x_train, x_test, y_train):
@@ -65,7 +64,7 @@ def try_knn(x_train, x_test, y_train):
     start = time.time()
     knn.fit(x_train, y_train)
     end = time.time()
-    return knn.predict(x_test), end-start
+    return knn.predict(x_test), end - start
 
 
 def try_bayes(x_train, x_test, y_train):
@@ -73,26 +72,27 @@ def try_bayes(x_train, x_test, y_train):
     start = time.time()
     gnb.fit(x_train, y_train)
     end = time.time()
-    return gnb.predict(x_test), end-start
+    return gnb.predict(x_test), end - start
 
 
 def main():
-    datasets_dict = {'all.click.csv': ['timepress', 'timerelease', 'xpress', 'ypress', 'xrelease', 'yrelease', 'button'],
-    'all.scroll.csv': ['time', 'x', 'y', 'rotation'], 'all.motion_0.csv': ['x', 'y', 'time'],
+    datasets_dict = {'all.scroll.csv': ['time', 'x', 'y', 'rotation'], 'all.motion.csv': ['x', 'y', 'time'],
                      'all.keystroke.csv': ['timepress', 'timerelease', 'keycode']}
-
 
     for datapath, value in datasets_dict.items():
         print('\nDataset: {}'.format(datapath))
-        df = pd.read_csv(datapath, delimiter=',')
+        df = pd.read_csv('initial_datasets/' + datapath, delimiter=',')
+
+        print(df)
 
         table = []
         table.append(['Classifier name', 'Test collection size', 'Accuracy (%)', 'Precision (%)',
-            'Recall (%)', 'F1-score (%)', 'Work Time (s)'])
+                      'Recall (%)', 'F1-score (%)', 'Work Time (s)'])
 
         x = df[value]
         y = df['user']
-        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=42)
+        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.5, random_state=42)
+        print(x_test)
 
         table.append(prepare_report('Perceptron', y_test, try_perceptron(x_train, x_test, y_train)))
         # table.append(prepare_report('SVM', y_test, try_svm(x_train, x_test, y_train)))
