@@ -13,7 +13,10 @@ class CSVHelper:
         return os.path.isfile(filename)
 
     def list_to_pd_dataframe(self, data_list, columns=None):
-        return pd.DataFrame(data_list, columns=columns)
+        try:
+            return pd.DataFrame(data_list, columns=columns)
+        except ValueError:
+            pass
 
     def write_to_csv(self, actions_list, csv_name, columns):
         row = self.list_to_pd_dataframe(actions_list, columns=columns)
