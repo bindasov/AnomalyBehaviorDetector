@@ -1,6 +1,5 @@
 from pynput import mouse
 from pynput import keyboard
-from common.csv_helper import CSVHelper
 from common.logger import get_logger
 from common.conf import config
 import time

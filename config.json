@@ -5,9 +5,14 @@
                   "SCROLL_CSV": "logs/scroll.csv",
                   "KEYSTROKE_CSV": "logs/keystroke.csv"
   },
+  "REAL_DATASETS": {"MOTION_CSV": "real_logs/motion.csv",
+                  "SCROLL_CSV": "real_logs/scroll.csv",
+                  "KEYSTROKE_CSV": "real_logs/keystroke.csv"
+  },
   "CSV_HEADERS": {"MOTION_HEADER": ["user", "session", "time", "x", "y"],
                   "SCROLL_HEADER": ["user", "session", "time", "x", "y", "rotation"],
                   "KEYSTROKE_HEADER": ["user", "session", "timepress", "timerelease", "keycode"]
   },
-  "SLEEP_TIME": 5
+  "SLEEP_TIME": 10
 }
+
