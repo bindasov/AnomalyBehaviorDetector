@@ -1,7 +1,7 @@
 from pynput import mouse
 from pynput import keyboard
-from common.logger import get_logger
-from common.conf import config
+from server.common.logger import get_logger
+from server.common.conf import config
 import time
 
 
