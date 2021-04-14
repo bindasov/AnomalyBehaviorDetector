@@ -3,8 +3,7 @@ from abc import ABC, abstractmethod
 
 class BaseListener(ABC):
 
-    def __init__(self, user_id, session_id, listener):
-        self.user_id = user_id
+    def __init__(self, session_id, listener):
         self.session_id = session_id
         self.listener = listener
 

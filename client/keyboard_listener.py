@@ -6,8 +6,8 @@ from client.base_listener import BaseListener
 
 class KeyboardListener(BaseListener):
 
-    def __init__(self, user_id, session_id):
-        super().__init__(user_id, session_id, keyboard.Listener(on_press=self.on_press, on_release=self.on_release))
+    def __init__(self, session_id):
+        super().__init__(session_id, keyboard.Listener(on_press=self.on_press, on_release=self.on_release))
         self.keys_pressed = {}
         self.keystroke_list = []
 
@@ -30,8 +30,7 @@ class KeyboardListener(BaseListener):
             keycode = key.value.vk
         finally:
             try:
-                self.keystroke_list.append([self.user_id, self.session_id, self.keys_pressed.pop(keycode),
-                                            time_released, keycode])
+                self.keystroke_list.append([self.session_id, self.keys_pressed.pop(keycode), time_released, keycode])
             except KeyError:
                 pass
 

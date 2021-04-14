@@ -23,7 +23,7 @@ class SocketTaskController:
 
     def launch_detector(self, data):
         self.logger.debug('Detecting user in operating mode')
-        return {'result': 0, 'user': Detector().detect(data)}
+        return {'result': 0, 'user': Detector().detect(data['type'], data['uid'], data['data'])}
 
 
 class SocketServerService(BaseServiceServer):
