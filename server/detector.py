@@ -1,20 +1,21 @@
 from listeners import Listener
-from server.common.csv_helper import CSVHelper
+from common.csv_helper import CSVHelper
 from ml_worker import MLWorker
-from server.common.conf import config
-from server.common.logger import get_logger
+from common import config
+from common.logger import get_logger
 import argparse
 import time
 import uuid
+
+
+def generate_session_id():
+    return uuid.uuid1().int % (10 ** 12)
 
 
 class Initializer:
     def __init__(self):
         self.parser = argparse.ArgumentParser(description='Detector script')
         self.parser.add_argument('--uid', action="store", dest="user_id")
-
-    def generate_session_id(self):
-        return uuid.uuid1().int % (10 ** 12)
 
     def __get_user_id(self):
 
@@ -53,7 +54,7 @@ class DataHandler:
         try:
             user, data_to_learn = self.__get_data_to_learn(df, dataset_header)
         except IndexError as e:
-            logger.error(f"Could't read file with base dataset. Error: {e}")
+            logger.error(f"Could not read file with base dataset. Error: {e}")
         else:
             data_to_check = self.get_data_to_check(dataset_path)
             if data_to_check is not None:
@@ -67,7 +68,6 @@ class Detector:
         self.users_list = []
         self.user_id_result = []
         self.logger = get_logger('Detector')
-        self.detect_types = {0: 'motion', 1: 'scroll', 2: 'keystroke'}
         self.data_handler = DataHandler()
 
     def __make_identification(self, data_to_learn, user, data_to_check):
@@ -75,8 +75,9 @@ class Detector:
             result_list = MLWorker().forest(data_to_learn, user, data_to_check).tolist()
             return max(set(result_list), key=result_list.count)
 
-    def detect(self, user_id):
-        for dataset_path, dataset_header in zip(config.CSV_DATASETS.values(), config.CSV_HEADERS.values()):
+    def detect(self, user_id=None, action_data=None):
+        for dataset_path, dataset_header in zip(config.LOGS_FOLDER + '/' + config.HEADERS.keys() + '.csv',
+                                                config.HEADERS.values()):
             data_to_check, data_to_learn, user = self.data_handler.prepare_data_for_ml(dataset_path,
                                                                                        dataset_header, self.logger)
 
@@ -114,7 +115,7 @@ class Detector:
 if __name__ == '__main__':
     initializer = Initializer()
     user_id = initializer.parse_args()
-    session_id = Initializer().generate_session_id()
+    session_id = generate_session_id()
     listener = Listener(user_id, session_id)
     listener.start_listening()
     print(f'Started listening. User ID: {user_id}, session ID: {session_id}')
