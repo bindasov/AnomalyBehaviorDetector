@@ -8,7 +8,6 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.model_selection import train_test_split
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from tabulate import tabulate
 import time
 from sklearn.metrics import confusion_matrix
@@ -117,11 +116,6 @@ def main():
 
             x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=test_size, random_state=42)
 
-            perceptron_res = try_perceptron(x_train, x_test, y_train)
-            decision_tree_res = try_decision_tree(x_train, x_test, y_train)
-            random_forest_res = try_random_forest(x_train, x_test, y_train)
-            knn_res = try_knn(x_train, x_test, y_train)
-            bayes_res = try_bayes(x_train, x_test, y_train)
 
             classifiers = {'Perceptron': try_perceptron, 'DecisionTree': try_decision_tree,
                            'RandomForest': try_random_forest, 'KNeighbors': try_knn, 'Bayes': try_bayes}

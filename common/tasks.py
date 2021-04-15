@@ -1,11 +1,7 @@
 from pickle import dumps, loads
 import zmq
 
-
 from common.logger import get_logger
-
-# __ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# sys.path.append(__ROOT)
 
 
 class BaseTask:
@@ -42,8 +38,8 @@ class BaseTask:
 
 class ClientTask(BaseTask):
 
-    def send_learn_data(self, actions_type, actions_log):
-        return self._send_task(data={'mode': 0, 'type': actions_type, 'data': actions_log})
+    def send_training_data(self, uid, actions_type, actions_log):
+        return self._send_task(data={'mode': 0, 'uid': uid, 'type': actions_type, 'actions': actions_log})
 
-    def recognize_user(self, uid, actions_type, actions_log):
-        return self._send_task(data={'mode': 1, 'uid': uid, 'type': actions_type, 'data': actions_log})
+    def authenticate_user(self, uid, actions_type, actions_log):
+        return self._send_task(data={'mode': 1, 'uid': uid, 'type': actions_type, 'actions': actions_log})

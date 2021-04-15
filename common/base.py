@@ -7,9 +7,3 @@ class LoggerLevels(IntEnum):
     warning = 30
     error = 40
     critical = 50
-
-
-class ActionTypes(str, Enum):
-    motion = 'motion'
-    scroll = 'scroll'
-    keystroke = 'keystroke'

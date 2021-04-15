@@ -1,10 +1,17 @@
-import os
 from time import sleep
+import uuid
 
 from common.tasks import ClientTask
+from common.logger import get_logger
 from common import config
 from client.keyboard_listener import KeyboardListener
 from client.mouse_listener import MouseListener
+
+logger = get_logger('client-listener')
+
+
+def generate_session_id():
+    return uuid.uuid1().int % (10 ** 12)
 
 
 class Listener:
@@ -19,11 +26,6 @@ class Listener:
         self.keyboard_listener.start_listening()
 
     def get_action_list(self, action_type):
-        # actions_dict = {
-        #     'motion': {'list': self.mouse_listener.get_motion_list(), 'header': config.HEADERS['motion']},
-        #     'scroll': {'list': self.mouse_listener.get_scroll_list(), 'header': config.HEADERS['scroll']},
-        #     'keystroke': {'list': self.keyboard_listener.get_keystroke_list(),
-        #                   'header': config.HEADERS['keystroke']}}
         actions_dict = {
             'motion': self.mouse_listener.get_motion_list(),
             'scroll': self.mouse_listener.get_scroll_list(),
@@ -37,35 +39,22 @@ class Listener:
 
 
 if __name__ == '__main__':
-    # mode = int(input('Mode (0 - learn, 1 - operating): '))
-    # uid = input('ID: ')
-    # session = input('Session: ')
-    mode = 0
-    uid = 42
-    session = 21
+    mode = int(input('Mode (0 - learn, 1 - operating): '))
+    uid = input('ID: ')
+    session = generate_session_id()
 
-    action_types = ['scroll', 'motion', 'keystroke']
-
+    logger.info('Starting client listener')
     listener = Listener(session)
     listener.start_listening()
 
-    if not os.path.exists(config.LOGS_FOLDER):
-        os.makedirs(config.LOGS_FOLDER)
-
-    print('Working...')
     while True:
         sleep(config.SLEEP_TIME)
-        for action in action_types:
-            action_list = listener.get_action_list(action)
+        for action_type in config.DATASETS.keys():
+            action_list = listener.get_action_list(action_type)
             if action_list:
-                print(f'action list: {action_list}')
                 if mode:
-                    res = ClientTask(config.SERVICE_ADDR).recognize_user(uid, action, action_list)
+                    res = ClientTask(config.SERVICE_ADDR).authenticate_user(uid, action_type, action_list)
                 else:
-                    res = ClientTask(config.SERVICE_ADDR).send_learn_data(action, action_list)
-                print(res)
-            # try:
-            #     CSVHelper().write_to_csv(lst, f'{config.LOGS_FOLDER}/{action}.csv', config.HEADERS[action])
-            # except Exception:
-            #     continue
+                    res = ClientTask(config.SERVICE_ADDR).send_training_data(uid, action_type, action_list)
+                logger.info(f'Server response: {res}')
         listener.clear_action_list()

@@ -3,7 +3,7 @@ import sys
 from common.service import BaseServiceServer
 from common.logger import get_logger
 from common import config
-from common.csv_helper import CSVHelper
+from common.helpers import DataHandler
 from server.detector import Detector
 
 
@@ -11,19 +11,19 @@ class SocketTaskController:
     def __init__(self):
         self.logger = get_logger('task-controller')
 
-    def record_learn_data(self, data):
-        self.logger.debug('Writing actions to file in learn mode')
-        try:
-            CSVHelper().write_to_csv(csv_name='logs/' + data['type'] + '.csv', actions_list=data['data'],
-                                     columns=config.HEADERS[data['type']])
-        except Exception as e:
-            return {'result': 1, 'error': e}
-        else:
-            return {'result': 0}
+    def record_training_data(self, data):
+        self.logger.debug('Recording training data')
+        return DataHandler().record_data(data)
 
     def launch_detector(self, data):
         self.logger.debug('Detecting user in operating mode')
-        return {'result': 0, 'user': Detector().detect(data['type'], data['uid'], data['data'])}
+        try:
+            user = Detector().detect(data['type'], data['uid'], data['actions'])
+        except Exception as e:
+            self.logger.error(f'User detection failed. Error: {e}')
+            self.logger.error(data['type'], data['uid'], data['actions'])
+            return {'result': 1, 'error': e}
+        return {'result': 0, 'user': user}
 
 
 class SocketServerService(BaseServiceServer):
@@ -37,11 +37,11 @@ class SocketServerService(BaseServiceServer):
         sys.exit()
 
     def do_task(self, data: dict):
-        if 'mode' not in data or 'type' not in data or 'data' not in data:
+        if 'mode' not in data or 'type' not in data or 'actions' not in data:
             self.logger.error(f'Broken data: {data}')
             return None
         elif data['mode'] == 0:
-            return self._controller.record_learn_data(data)
+            return self._controller.record_training_data(data)
         else:
             return self._controller.launch_detector(data)
 
