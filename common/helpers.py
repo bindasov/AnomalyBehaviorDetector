@@ -21,6 +21,10 @@ class CSVHelper:
         except ValueError:
             return None
 
+    @staticmethod
+    def pd_dataframe_to_list(df):
+        return df.values.tolist()
+
     def write_to_csv(self, actions_list, csv_name, columns):
         row = self.list_to_pd_dataframe(actions_list, columns=columns)
         if not self.__file_exists(csv_name):

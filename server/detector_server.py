@@ -23,7 +23,7 @@ class SocketTaskController:
             self.logger.error(f'User detection failed. Error: {e}')
             self.logger.error(data['type'], data['uid'], data['actions'])
             return {'result': 1, 'error': e}
-        return {'result': 0, 'user': user}
+        return {'result': 0, 'OK': user}
 
 
 class SocketServerService(BaseServiceServer):
@@ -39,7 +39,7 @@ class SocketServerService(BaseServiceServer):
     def do_task(self, data: dict):
         if 'mode' not in data or 'type' not in data or 'actions' not in data:
             self.logger.error(f'Broken data: {data}')
-            return None
+            return {'result': 1, 'error': 'broken data'}
         elif data['mode'] == 0:
             return self._controller.record_training_data(data)
         else:
